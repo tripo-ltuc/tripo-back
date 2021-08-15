@@ -143,6 +143,31 @@ function addCardsHandler(req, res) {
     }
   });
 }
+// http://localhost:3001/deleteCards?city=Amman
+
+server.delete("/deleteCards/:index", deletecard);
+
+function deletecard(req, res) {
+  const { city } = req.query;
+  const index = req.params.index;
+
+  userModel.find({ cityName: city }, (error, results) => {
+    if (error || results.length == 0) {
+      console.log(`The error is ${error}`);
+      res.status(404).send("Kill me");
+    } else {
+      const newData = results[0].card.filter((item, idx) => {
+        if (idx != index) {
+          return item;
+        }
+      });
+      console.log(newData);
+      results[0].card = newData;
+      results[0].save();
+      res.status(200).send(results[0].card);
+    }
+  });
+}
 server.listen(PORT, () => {
   console.log(`Listening on PORT ${PORT}`);
 });
