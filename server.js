@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema({
   value: String,
 });
 
-const cardsModel = mongoose.model("card", cardsSchema);
+const cardsModel = mongoose.model("firstSchema", cardsSchema);
 const userModel = mongoose.model("user", userSchema);
 
 // seeding
@@ -143,24 +143,28 @@ function addCardsHandler(req, res) {
     }
   });
 }
-// http://localhost:3001/deleteCards?city=Amman
+
+//localhost:3001/deleteCards?city=Amman
 
 server.delete("/deleteCards/:index", deletecard);
 
 function deletecard(req, res) {
-  const { city } = req.query;
+  const { value } = req.query;
   const index = req.params.index;
 
-  userModel.find({ cityName: city }, (error, results) => {
+  userModel.find({ cityName: city }, (err, results) => {
     if (error || results.length == 0) {
       console.log(`The error is ${error}`);
       res.status(404).send("Kill me");
     } else {
-      const newData = results[0].card.filter((item, idx) => {
-        if (idx != index) {
-          return item;
-        }
-      });
+      // const newData = results[0].card.filter((item, idx) => {
+      //   if (idx != index) {
+      //     return item;
+      //   }
+      // });
+
+      const newData = results[0].card.splice(-1);
+
       console.log(newData);
       results[0].card = newData;
       results[0].save();
@@ -168,6 +172,7 @@ function deletecard(req, res) {
     }
   });
 }
+
 server.listen(PORT, () => {
   console.log(`Listening on PORT ${PORT}`);
 });
