@@ -1,4 +1,5 @@
 'use strict';
+const Location = require('./location');
 const Forcast = require('./weather');
 const Movies = require('./movie');
 const Hotel = require('./hotel');
@@ -9,6 +10,10 @@ const { default: axios } = require("axios");
 const countryDataList = require('./data/county_list.json');
 
 const utilityFunObj = {};
+
+utilityFunObj.creatLocationObj = locationObj => {
+    return new Location(locationObj);
+};
 
 utilityFunObj.createForcastObj = weatherObjList =>{
     const forcastObjList = [];
@@ -69,7 +74,7 @@ utilityFunObj.getHotelsIdList = async (destinationId) => {
 
 utilityFunObj.getFullHotelsData = async hotelData => {
     const newHotelList = [];
-    for(let i = 0; i < hotelData.length; i++){
+    for(let i = 0; i < 2; i++){
         let hotelId = hotelData[i].id;
         hotelId = hotelId > 999999999 ? utilityFunObj.getRandomHotelId(0, 999999999) : hotelId;
         const options = {
@@ -86,7 +91,6 @@ utilityFunObj.getFullHotelsData = async hotelData => {
         hotelData[i].cardImgUrl = resData.data[0].mainUrl.replace('_z', '_d');
         newHotelList.push(hotelData[i]);
     }
-    console.log('newHotelList = ', newHotelList)
     return newHotelList;
 };
 

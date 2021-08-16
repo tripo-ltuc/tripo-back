@@ -23,7 +23,7 @@ collectionObj.locatioIQHandler = (req, res) => {
     .get(`${process.env.LOCATIONIQ_URL}`, {params : {q : cityName, format : 'json'}})
     .then( result => {
         //console.log(result.data)
-        res.status(200).send(result.data);
+        res.status(200).send(utilityFunCollection.creatLocationObj(result.data));
     })
     .catch(err => {
         // console.log(err);
@@ -48,23 +48,23 @@ collectionObj.weatherForcastHandler = (req, res) => {
 };
 
 // http://localhost:3001/Movie?cityName=Paris
-collectionObj.moviesHandler = (req, res) => {
-    const {cityName} = req.query;
+// collectionObj.moviesHandler = (req, res) => {
+//     const {cityName} = req.query;
 
-    if(movieDataInMemory[cityName] !== undefined)
-        res.send(movieDataInMemory[cityName]);
-    axios
-    .get(`${process.env.MOVIE_API_URL}`, {params: {api_key : process.env.MOVIE_API_KEY, query : cityName}})
-    .then(result => {
-        //console.log(utilityFunCollection.createMoviesObj(result.data));
-        res.status(200).send(utilityFunCollection.createForcastObj(result.data));
-    })
-    .catch(err => {
-       //console.log(err);
-       res.status(500).send(err);
-    });
+//     if(movieDataInMemory[cityName] !== undefined)
+//         res.send(movieDataInMemory[cityName]);
+//     axios
+//     .get(`${process.env.MOVIE_API_URL}`, {params: {api_key : process.env.MOVIE_API_KEY, query : cityName}})
+//     .then(result => {
+//         //console.log(utilityFunCollection.createMoviesObj(result.data));
+//         res.status(200).send(utilityFunCollection.createForcastObj(result.data));
+//     })
+//     .catch(err => {
+//        //console.log(err);
+//        res.status(500).send(err);
+//     });
 
-};
+// };
 
 // http://localhost:3001/Hotel?cityName=Paris
 collectionObj.hotelsHandler = async (req, res) => {
