@@ -13,6 +13,9 @@ class Hotel{
         this.roomsLeft = hotelObj.roomsLeft || 0;
     };
 
+}
+
+module.exports = Hotel;
     // getCardImgUrl = async hotelId => {
     //     let newHotelId ='';
     //     newHotelId += hotelId > 999999999 ? this.getRandomHotelId(0, 999999999) : hotelId;
@@ -40,6 +43,3 @@ class Hotel{
     //     max = Math.floor(max);
     //     return Math.floor(Math.random() * (max - min + 1) + min); 
     // };
-}
-
-module.exports = Hotel;
