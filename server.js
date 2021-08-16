@@ -1,14 +1,11 @@
 "use strict";
-
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const mongoose = require("mongoose");
-
 const server = express();
 server.use(cors());
 server.use(express.json());
-
 const PORT = process.env.PORT;
 
 mongoose.connect("mongodb://localhost:27017/postCards", {
@@ -17,167 +14,173 @@ mongoose.connect("mongodb://localhost:27017/postCards", {
 });
 
 // creating a schema
-const cardsSchema = new mongoose.Schema({
-  placeName: String,
+// const cardsSchema = new mongoose.Schema({
+//   cityName: String,
+//   userName: String,
+//   content: String,
+//   userEmail: String,
+//   cityImg: String,
+//   likes: String,
+//   userImg: String,
+//   comments: Array,
+// });
+
+const commentSchema = new mongoose.Schema({
+  userImg: String,
   userName: String,
-  comment: String,
-  img: String,
+  userComment: String,
 });
 
-const userSchema = new mongoose.Schema({
+const postSchema = new mongoose.Schema({
+  placeName: String,
+  content: String,
+  userName: String,
+  cityImg: String,
+  likes: String,
+  userImg: String,
+  comments: [commentSchema],
+});
+
+const ownerSchema = new mongoose.Schema({
+  userEmail: String,
+  postArr: [postSchema],
   cityName: String,
-  card: [cardsSchema],
-  value: String,
 });
 
-const cardsModel = mongoose.model("firstSchema", cardsSchema);
-const userModel = mongoose.model("user", userSchema);
+const ownerModel = mongoose.model("owner", ownerSchema);
 
-// seeding
-
-function seedCardsCollections() {
-  const input1 = new cardsModel({
-    placeName: "Amman",
-    userName: "Ghadeer",
-    comment: "I don't like this city",
-    img: "https://adminassets.devops.arabiaweather.com/sites/default/files/field/image/amman-at-night.jpgs",
-  });
-
-  const input2 = new cardsModel({
-    placeName: "Paris",
-    userName: "Mohammad",
-    comment: "I like the city",
-    img: "https://q-xx.bstatic.com/xdata/images/hotel/840x460/210768979.jpg?k=8c5a446976bf74a068d77c5e1dcf37158b9625883dd99ff46175fa6d263836e2&o=",
-  });
-
-  input1.save();
-  input2.save();
-}
-seedCardsCollections();
-
-function seedUserCollections() {
-  const Amman = new userModel({
-    cityName: "Amman",
-    card: [
+function seedOwnerCollection() {
+  const firstCommenter = new ownerModel({
+    userEmail: "ghadeerkhasawneh91@gmail.com",
+    cityName: "Paris",
+    postArr: [
       {
-        placeName: "Amman",
+        placeName: "Paris",
+        content: "I like Paris.",
+        userName: "Ghadeer",
+        cityImg: "Img",
+        likes: "1",
+        userImg: "userImg",
+        comments: [
+          { userImg: "img", userName: "Ahmad", userComment: "You are right!" },
+        ],
+      },
+    ],
+  });
+
+  const secondCommenter = new ownerModel({
+    userEmail: "",
+    cityName: "London",
+    postArr: [
+      {
+        placeName: "London",
+        content: "I like London.",
         userName: "Mohammad",
-        comment: "I think it is a great city",
-        img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSk9rwD-ytjWXcOBGtdR8qt7r4VhPWT3tUSQ_YP94Bya3ub0hLZPNcEgmHFQG3g2nrVEaM&usqp=CAU",
-      },
-      {
-        placeName: "Amman",
-        userName: "Rahaf",
-        comment: "I think it is a great city",
-        img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSk9rwD-ytjWXcOBGtdR8qt7r4VhPWT3tUSQ_YP94Bya3ub0hLZPNcEgmHFQG3g2nrVEaM&usqp=CAU",
+        cityImg: "Img",
+        likes: "1",
+        userImg: "userImg",
+        comments: [
+          { userImg: "img", userName: "Ahmad", userComment: "You are right!" },
+        ],
       },
     ],
-    value: "yes",
   });
-  // const post = new userModel({
-  //   cityName: "All",
-  //   card: [],
-  //   value: "yes",
-  // });
 
-  const Damascus = new userModel({
-    cityName: "Damascus",
-    card: [
-      {
-        placeName: "Damascus",
-        userName: "Ali",
-        comment: "I like it",
-        img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSk9rwD-ytjWXcOBGtdR8qt7r4VhPWT3tUSQ_YP94Bya3ub0hLZPNcEgmHFQG3g2nrVEaM&usqp=CAU",
-      },
-      {
-        placeName: "Damascus",
-        userName: "Ali",
-        comment: "I like it",
-        img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSk9rwD-ytjWXcOBGtdR8qt7r4VhPWT3tUSQ_YP94Bya3ub0hLZPNcEgmHFQG3g2nrVEaM&usqp=CAU",
-      },
-    ],
-    value: "yes",
-  });
-  Amman.save();
-  Damascus.save();
-  // post.save();
+  firstCommenter.save();
+  secondCommenter.save();
 }
 
-seedUserCollections();
+// seedOwnerCollection();
 
 server.get("/cards", getCardsHandler);
-
-// http://localhost:3041/cards?city=Amman
+// http://localhost:3020/cards?city=Amman
 
 function getCardsHandler(req, res) {
   let { city } = req.query;
 
-  userModel.find({ cityName: city }, function (err, results) {
+  ownerModel.find({ cityName: city }, function (err, results) {
     if (err || results.length == 0) {
       console.log("is not working");
     } else {
-      // console.log(ownerData[0]);
-      // console.log(results[0].);
-      res.send(results[0].card);
+      // console.log(results[0], "results sub0");
+      // console.log(results);
+      res.send(results);
     }
   });
 }
+
 server.post("/addCards", addCardsHandler);
-// http://localhost:3001/addCards?city=Amman&&placeName=Amman&&userName=Ghadeer&&comment=No&&img=image
+// http://localhost:3020/addCards?cityName=Amman
 
 function addCardsHandler(req, res) {
-  const { value, placeName, userName, comment, img } = req.body;
+  let { userName, userEmail, content, userImg, comments } = req.body;
+  let { cityName, cityImg, likes } = req.query;
 
-  userModel.find({ value: value }, function (error, results) {
-    if (error || results.length == 0) {
-      res.send("is not working");
+  const newPost = {
+    placeName: cityName,
+    content: content,
+    userName: userName,
+    cityImg: cityImg,
+    likes: likes,
+    userImg: userImg,
+    comments: comments.length || [],
+  };
+  const userObject = {
+    userEmail: userEmail,
+    cityName: cityName,
+    postArr: newPost,
+  };
+
+  ownerModel.find({ cityName: city }, function (err, results) {
+    if (err || results.length == 0) {
+      console.log("is not working");
     } else {
-      results[0].card.push({
-        placeName: placeName,
-        userName: userName,
-        comment: comment,
-        img: img,
-      });
-      results[0].save();
-      res.send(results[0].card);
+      // console.log(results[0], "results sub0");
+      // console.log(results);
+      res.send(results);
     }
   });
 }
 
-//localhost:3001/deleteCards?city=Amman
+//   cardsModel.find({ cityName: cityName }, function (error, results) {
+//     if (error || results.length == 0) {
+//       res.send("is not working");
+//     } else {
+//       console.log("before", results);
+//       results.push(allObj);
+//       console.log("after", results);
+//       results.save();
 
-server.delete("/deleteCards/:index", deletecard);
+//       // res.send(allObj);
+//     }
+//   });
+// }
 
-function deletecard(req, res) {
-  const { value } = req.query;
-  const index = req.params.index;
+// //localhost:3001/deleteCards?city=Amman
 
-  userModel.find({ cityName: city }, (err, results) => {
-    if (error || results.length == 0) {
-      console.log(`The error is ${error}`);
-      res.status(404).send("Kill me");
-    } else {
-      // const newData = results[0].card.filter((item, idx) => {
-      //   if (idx != index) {
-      //     return item;
-      //   }
-      // });
-
-      const newData = results[0].card.splice(-1);
-
-      console.log(newData);
-      results[0].card = newData;
-      results[0].save();
-      res.status(200).send(results[0].card);
-    }
-  });
-}
+// server.delete("/deleteCards/:index", deletecard);
+// function deletecard(req, res) {
+//   const { value } = req.query;
+//   const index = req.params.index;
+//   cardsModel.find({ cityName: city }, (err, results) => {
+//     if (error || results.length == 0) {
+//       console.log(`The error is ${error}`);
+//       res.status(404).send("Kill me");
+//     } else {
+//       // const newData = results[0].card.filter((item, idx) => {
+//       //   if (idx != index) {
+//       //     return item;
+//       //   }
+//       // });
+//       const newData = results[0].card.splice(-1);
+//       console.log(newData);
+//       results[0].card = newData;
+//       results[0].save();
+//       res.status(200).send(results[0].card);
+//     }
+//   });
+// }
 
 server.listen(PORT, () => {
   console.log(`Listening on PORT ${PORT}`);
 });
-
-server.get("/", homepage);
-function homepage(req, res) {
-  res.send("Hello ");
-}
