@@ -4,6 +4,8 @@ require('dotenv').config();
 const { default: axios } = require("axios");
 const Amadeus = require("amadeus");
 const superagent = require('superagent');
+const objectId = require('mongodb').ObjectId; 
+const postModel = require('./postModel');
 const amadeus = new Amadeus({
   clientId: process.env.AMADEUS_API_KEY,
   clientSecret: process.env.AMADEUS_API_SECRET
@@ -13,7 +15,6 @@ const amadeus = new Amadeus({
 const utilityFunCollection = require('./utilityFunCollection');
 
 const collectionObj = {};
-const movieDataInMemory = {};
 
 // http://localhost:3001/Location?cityName=Paris
 collectionObj.locatioIQHandler = (req, res) => {
@@ -27,7 +28,7 @@ collectionObj.locatioIQHandler = (req, res) => {
     })
     .catch(err => {
         // console.log(err);
-        res.staus(500).send();
+        res.staus(500).send(err);
     });
 };
 
@@ -114,5 +115,101 @@ collectionObj.activitiesHandler = (req, res) => {
       }).then(result => res.send(utilityFunCollection.createAndActivityList(result.data)))
       .catch(err => console.log(err));
 };
+
+
+collectionObj.getCityCardsHandler = (req, res) => {
+    const { cityName } = req.query;
+    const lowerCaseCityName = cityName.toLocaleLowerCase();
+    postModel.find({cityName: lowerCaseCityName}, (err, results) => {
+      if(err)
+        console.log(err);
+      else{
+        console.log(results);
+        res.send(results);
+      }
+    });
+};
+
+collectionObj.getUserCardsHandler = (req, res) => {
+    const { userEmail } = req.query;
+    postModel.find({userEmail: userEmail}, (err, results) => {
+      if(err)
+        console.log(err);
+      else{
+        console.log(results);
+        res.send(results);
+      }
+    });
+};
+
+collectionObj.getAllCardsHandler = (req, res) => {
+    postModel.find({}, (err, results) => {
+      if(err)
+        console.log(err);
+      else{
+        console.log(results);
+        res.send(results);
+      }
+    });
+};
+
+collectionObj.addCardsHandler = (req, res) => {
+    const { userName, userEmail, content, userImg, cityImg, cityName} = req.body;
+
+    const newPost = new postModel({
+      userEmail: userEmail.toLocaleLowerCase(),
+      userName: userName.toLocaleLowerCase(),
+      userImg: userImg,
+      content: content,
+      cityName: cityName.toLocaleLowerCase(),
+      cityImg: cityImg,
+      likes: "0",
+      comments: []
+    });
+  
+    newPost.save();
+    postModel.find({}, (err, results) => {
+      if(err)
+        console.log(err);
+      res.send(results);
+    });
+};
+
+collectionObj.deleteCard = (req, res) => {
+    const {id} = req.params;
+
+    postModel.deleteOne({_id : id}, (err, results) => {
+      if(err)
+        console.log(err);
+      else{
+        postModel.find({}, (err, results) => {
+          if(err)
+            console.log(err);
+          res.send(results);
+        });
+      }
+    });
+};
+
+collectionObj.updateCard = (req, res) => {
+    const {content, cityImg, cityName, userEmail} = req.body;
+    const {id} = req.params;
+    objectId(id);
+    postModel.findOne({_id: id}, (err, results) =>{
+      if(err)
+        console.log(err);
+      else{
+  
+        results.content = content;
+        results.cityImg = cityImg;
+        results.cityName = cityName;
+        results.save().then(() => {
+          postModel.find({userEmail: userEmail}, (err, results) => {
+            res.send(results);
+          });
+        }); 
+      }
+    });
+  };
 
 module.exports = collectionObj;
