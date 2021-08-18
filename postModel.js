@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const commentSchema = new mongoose.Schema({
     userImg: String,
     userName: String,
+    userEmail: String,
     userComment: String,
   });
   

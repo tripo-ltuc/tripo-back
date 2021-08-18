@@ -24,7 +24,7 @@ collectionObj.locatioIQHandler = (req, res) => {
     .get(`${process.env.LOCATIONIQ_URL}`, {params : {q : cityName, format : 'json'}})
     .then( result => {
         //console.log(result.data)
-        res.status(200).send(utilityFunCollection.creatLocationObj(result.data));
+        res.status(200).send(utilityFunCollection.creatLocationObj(result.data[0]));
     })
     .catch(err => {
         // console.log(err);
@@ -37,7 +37,7 @@ collectionObj.weatherForcastHandler = (req, res) => {
     const {lat, lon, city} = req.query;
     // console.log(lat, ' - ', lon, ' - ', city);
     axios
-    .get(`${process.env.WATHER_API_URL}`, {params : {city : city, lat : lat, lon: lon}})
+    .get(`${process.env.WATHER_API_URL}`, {params : {city : city, lat : lat, lon: lon, key: process.env.WEATHER_API_KEY}})
     .then(result => {
         //console.log(utilityFunCollection.createForcastObj(result.data));
         res.status(200).send(utilityFunCollection.createForcastObj(result.data));  
@@ -47,25 +47,6 @@ collectionObj.weatherForcastHandler = (req, res) => {
        res.status(500).send(err);
     });
 };
-
-// http://localhost:3001/Movie?cityName=Paris
-// collectionObj.moviesHandler = (req, res) => {
-//     const {cityName} = req.query;
-
-//     if(movieDataInMemory[cityName] !== undefined)
-//         res.send(movieDataInMemory[cityName]);
-//     axios
-//     .get(`${process.env.MOVIE_API_URL}`, {params: {api_key : process.env.MOVIE_API_KEY, query : cityName}})
-//     .then(result => {
-//         //console.log(utilityFunCollection.createMoviesObj(result.data));
-//         res.status(200).send(utilityFunCollection.createForcastObj(result.data));
-//     })
-//     .catch(err => {
-//        //console.log(err);
-//        res.status(500).send(err);
-//     });
-
-// };
 
 // http://localhost:3001/Hotel?cityName=Paris
 collectionObj.hotelsHandler = async (req, res) => {
@@ -123,10 +104,8 @@ collectionObj.getCityCardsHandler = (req, res) => {
     postModel.find({cityName: lowerCaseCityName}, (err, results) => {
       if(err)
         console.log(err);
-      else{
-        console.log(results);
+      else
         res.send(results);
-      }
     });
 };
 
@@ -135,10 +114,8 @@ collectionObj.getUserCardsHandler = (req, res) => {
     postModel.find({userEmail: userEmail}, (err, results) => {
       if(err)
         console.log(err);
-      else{
-        console.log(results);
+      else
         res.send(results);
-      }
     });
 };
 
@@ -146,10 +123,8 @@ collectionObj.getAllCardsHandler = (req, res) => {
     postModel.find({}, (err, results) => {
       if(err)
         console.log(err);
-      else{
-        console.log(results);
+      else
         res.send(results);
-      }
     });
 };
 
@@ -171,7 +146,8 @@ collectionObj.addCardsHandler = (req, res) => {
     postModel.find({}, (err, results) => {
       if(err)
         console.log(err);
-      res.send(results);
+       else
+        res.send(results);
     });
 };
 
@@ -185,14 +161,15 @@ collectionObj.deleteCard = (req, res) => {
         postModel.find({}, (err, results) => {
           if(err)
             console.log(err);
-          res.send(results);
+          else
+            res.send(results);
         });
       }
     });
 };
 
 collectionObj.updateCard = (req, res) => {
-    const {content, cityImg, cityName, userEmail} = req.body;
+    const {content, cityImg, cityName} = req.body;
     const {id} = req.params;
     objectId(id);
     postModel.findOne({_id: id}, (err, results) =>{
@@ -204,12 +181,79 @@ collectionObj.updateCard = (req, res) => {
         results.cityImg = cityImg;
         results.cityName = cityName;
         results.save().then(() => {
-          postModel.find({userEmail: userEmail}, (err, results) => {
-            res.send(results);
+          postModel.find({}, (err, results) => {
+              if(err)
+                consle.log(err);
+              else
+                res.send(results);
           });
         }); 
       }
     });
   };
+
+collectionObj.addCardComment = (req, res) => {
+    const {id} = req.params;
+    const{comment} = req.body;
+    objectId(id);
+
+    postModel.findOne({_id: id}, (err, result) => {
+        if(err)
+            console.log(err);
+        else{
+            result.comments.push(comment);
+            result.save().then( () =>{
+                postModal.find({}, (err, results) => {
+                    if(err)
+                        console.log(err);
+                    else
+                        res.send(results);
+                })}
+            );
+        }
+    });
+}
+
+collectionObj.deleteCardComment = (req, res) => {
+    const {id} = req.params;
+    const {idx} = req.body;
+    objectId(id);
+
+    postModel.findOne({_id: id}, (err, result) => {
+        if(err)
+            console.log(err);
+        else{
+            result.comments.splice(idx, 1);
+            result.save();
+            postModal.find({}, (err, results) => {
+                if(err)
+                    consloe.log(err);
+                else
+                    res.send(results);
+            });
+        }
+    });
+};
+
+collectionObj.updateCardComment = (req, res) => {
+    const {id} = req.params;
+    const {commentIdx, newComment} = req.body;
+
+    postModel.findOne({_id: id}, (err, result) => {
+        if(err)
+            console.log(err);
+        else{
+            result.comments[commentIdx]= newComment;
+            result.save().then( () =>{
+                postModel.find({}, (err, results) => {
+                    if(err)
+                        console.log(err);
+                    else
+                        res.send(results);
+                })
+            });
+        }
+    });
+};
 
 module.exports = collectionObj;
