@@ -3,8 +3,8 @@ const mongoose = require("mongoose");
 const commentSchema = new mongoose.Schema({
     userImg: String,
     userName: String,
-    userEmail: String,
     userComment: String,
+    // userEmail: String
   });
   
   const postSchema = new mongoose.Schema({
@@ -15,7 +15,7 @@ const commentSchema = new mongoose.Schema({
     cityImg: String,
     cityName: String,
     likes: String,
-    comments: [commentSchema],
+    comments: [commentSchema]
   });
   
   const postModel = mongoose.model("city", postSchema);

@@ -11,11 +11,6 @@ server.use(cors());
 server.use(express.json());
 const PORT = process.env.PORT || 3001;
 
-mongoose.connect("mongodb://localhost:27017/postCards", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-  
 
   // server.get('/Movies', handlerFunCollection.moviesHandler);
   server.get('/Location', handlerFunCollection.locatioIQHandler);
@@ -33,7 +28,7 @@ mongoose.connect("mongodb://localhost:27017/postCards", {
   // http://localhost:3001/addCard?cityName=
   server.post("/addCard", handlerFunCollection.addCardsHandler);
   // http://localhost:3001/addCardComment/
-  server.post('/addCardComment/:id', handlerFunCollection.addCardComment);
+  server.post('/addCardComment', handlerFunCollection.addCardComment);
   // http://localhost:3001/deleteCard/1
   server.delete("/deleteCard/:id", handlerFunCollection.deleteCard);
   // http://localhost:3001/deleteCardComment/1

@@ -4,13 +4,18 @@ require('dotenv').config();
 const { default: axios } = require("axios");
 const Amadeus = require("amadeus");
 const superagent = require('superagent');
-const objectId = require('mongodb').ObjectId; 
 const postModel = require('./postModel');
+const mongoose = require("mongoose");
 const amadeus = new Amadeus({
   clientId: process.env.AMADEUS_API_KEY,
   clientSecret: process.env.AMADEUS_API_SECRET
 });
 
+mongoose.connect("mongodb://localhost:27017/postCards", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+  
 
 const utilityFunCollection = require('./utilityFunCollection');
 
@@ -130,19 +135,20 @@ collectionObj.getAllCardsHandler = (req, res) => {
 
 collectionObj.addCardsHandler = (req, res) => {
     const { userName, userEmail, content, userImg, cityImg, cityName} = req.body;
-
+  
     const newPost = new postModel({
-      userEmail: userEmail.toLocaleLowerCase(),
-      userName: userName.toLocaleLowerCase(),
+      userEmail: userEmail,
+      userName: userName,
       userImg: userImg,
       content: content,
-      cityName: cityName.toLocaleLowerCase(),
       cityImg: cityImg,
+      cityName: cityName,
       likes: "0",
       comments: []
     });
-  
+
     newPost.save();
+
     postModel.find({}, (err, results) => {
       if(err)
         console.log(err);
@@ -153,7 +159,7 @@ collectionObj.addCardsHandler = (req, res) => {
 
 collectionObj.deleteCard = (req, res) => {
     const {id} = req.params;
-
+    console.log("in delete handler!");
     postModel.deleteOne({_id : id}, (err, results) => {
       if(err)
         console.log(err);
@@ -171,7 +177,8 @@ collectionObj.deleteCard = (req, res) => {
 collectionObj.updateCard = (req, res) => {
     const {content, cityImg, cityName} = req.body;
     const {id} = req.params;
-    objectId(id);
+
+    console.log("in update handler and the body and params are:", req.body, "  ", req.params);
     postModel.findOne({_id: id}, (err, results) =>{
       if(err)
         console.log(err);
@@ -193,17 +200,17 @@ collectionObj.updateCard = (req, res) => {
   };
 
 collectionObj.addCardComment = (req, res) => {
-    const {id} = req.params;
-    const{comment} = req.body;
-    objectId(id);
-
+    const{id, comment} = req.body;
+    console.log('in addCardComment and id:', id,' of type: ', typeof id);
+    console.log('id:', id);
+    console.log('comment:', comment);
     postModel.findOne({_id: id}, (err, result) => {
         if(err)
             console.log(err);
         else{
-            result.comments.push(comment);
+            result.comments.unshift(comment);
             result.save().then( () =>{
-                postModal.find({}, (err, results) => {
+              postModel.find({}, (err, results) => {
                     if(err)
                         console.log(err);
                     else
@@ -216,16 +223,14 @@ collectionObj.addCardComment = (req, res) => {
 
 collectionObj.deleteCardComment = (req, res) => {
     const {id} = req.params;
-    const {idx} = req.body;
-    objectId(id);
-
+    const {commentIdx} = req.body;
     postModel.findOne({_id: id}, (err, result) => {
         if(err)
             console.log(err);
         else{
-            result.comments.splice(idx, 1);
+            result.comments.splice(commentIdx, 1);
             result.save();
-            postModal.find({}, (err, results) => {
+            postModel.find({}, (err, results) => {
                 if(err)
                     consloe.log(err);
                 else
@@ -239,6 +244,7 @@ collectionObj.updateCardComment = (req, res) => {
     const {id} = req.params;
     const {commentIdx, newComment} = req.body;
 
+    console.log("in server handler!");
     postModel.findOne({_id: id}, (err, result) => {
         if(err)
             console.log(err);
