@@ -32,10 +32,17 @@ mongoose.connect("mongodb://localhost:27017/postCards", {
   server.get("/getAllCards", handlerFunCollection.getAllCardsHandler);
   // http://localhost:3001/addCard?cityName=
   server.post("/addCard", handlerFunCollection.addCardsHandler);
+  // http://localhost:3001/addCardComment/
+  server.post('/addCardComment/:id', handlerFunCollection.addCardComment);
   // http://localhost:3001/deleteCard/1
   server.delete("/deleteCard/:id", handlerFunCollection.deleteCard);
+  // http://localhost:3001/deleteCardComment/1
+  server.delete("/deleteCardComment/:id", handlerFunCollection.deleteCardComment);
   // http://localhost:3001/updateCard/
   server.put('/updateCard/:id', handlerFunCollection.updateCard);
+  // http://localhost:3001/updateCardComment/
+  server.put('/updateCardComment/:id', handlerFunCollection.updateCardComment);
+
   
   server.listen(PORT, () => {
       console.log(`Listening on PORT ${PORT}`);
