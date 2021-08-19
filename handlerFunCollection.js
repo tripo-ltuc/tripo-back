@@ -11,7 +11,7 @@ const amadeus = new Amadeus({
   clientSecret: process.env.AMADEUS_API_SECRET
 });
 
-mongoose.connect("mongodb://localhost:27017/postCards", {
+mongoose.connect(`${process.env.MONGODB_URL}`, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -89,7 +89,10 @@ collectionObj.resturantHandler = (req, res) =>{
     superagent.get(`${process.env.YELP_RESTURANTS_URL}?location=${cityName}`)
     .set('Authorization', `Bearer ${apiKey}`)
     .then(result =>  res.send(utilityFunCollection.createRestaurantObj(result.body.businesses)))
-    .catch(err => console.log(err));
+    .catch(err => {
+      console.log("in restaurants");
+      console.log(err)
+    });
 };
 
 // http://localhost:3001/Activity?lat=&lon=
@@ -99,7 +102,10 @@ collectionObj.activitiesHandler = (req, res) => {
         latitude: Number(lat),
         longitude: Number(lon)
       }).then(result => res.send(utilityFunCollection.createAndActivityList(result.data)))
-      .catch(err => console.log(err));
+      .catch(err => {
+        console.log("in restaurants");
+        console.log(err)
+      });
 };
 
 
