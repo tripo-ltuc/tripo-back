@@ -147,13 +147,13 @@ collectionObj.addCardsHandler = (req, res) => {
       comments: []
     });
 
-    newPost.save();
-
-    postModel.find({}, (err, results) => {
-      if(err)
-        console.log(err);
-       else
-        res.send(results);
+    newPost.save().then( () => {
+      postModel.find({}, (err, results) => {
+        if(err)
+          console.log(err);
+         else
+          res.send(results);
+      });
     });
 };
 
@@ -229,12 +229,13 @@ collectionObj.deleteCardComment = (req, res) => {
             console.log(err);
         else{
             result.comments.splice(commentIdx, 1);
-            result.save();
-            postModel.find({}, (err, results) => {
+            result.save().then(() => {
+              postModel.find({}, (err, results) => {
                 if(err)
                     consloe.log(err);
                 else
                     res.send(results);
+              });
             });
         }
     });
