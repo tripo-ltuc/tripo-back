@@ -33,7 +33,7 @@ collectionObj.locatioIQHandler = (req, res) => {
     })
     .catch(err => {
         // console.log(err);
-        res.staus(500).send(err);
+        res.status(500).send(err);
     });
 };
 

@@ -74,7 +74,7 @@ utilityFunObj.getHotelsIdList = async (destinationId) => {
 
 utilityFunObj.getFullHotelsData = async hotelData => {
     const newHotelList = [];
-    for(let i = 0; i < 2; i++){
+    for(let i = 0; i < 3; i++){
         let hotelId = hotelData[i].id;
         hotelId = hotelId > 999999999 ? utilityFunObj.getRandomHotelId(0, 999999999) : hotelId;
         const options = {
